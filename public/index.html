@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Show Progress</title>
+</head>
+
+<body>
+    <p>あずきバーくんの現在の「期末レポート」進捗は<span id="progress" style="color: red;"></span>文字です</p>
+    <p>ちなみに1600字以上を要求されています。期限は5日23時59分です。ヤバいわよ！</p>
+
+</body>
+
+</html>
+<script>
+    const area = document.getElementById("progress");
+    if (area !== null) {
+        fetch("/count")
+            .then(res => res.json())
+            .then(v => area.innerText = v["length"])
+    }
+</script>
