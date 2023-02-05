@@ -2,25 +2,40 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP" rel="stylesheet">
+  <style>
+    .wf-notosansjapanese {
+      font-family: "Noto Sans JP";
+    }
 
-    <title>Show Progress</title>
+  </style>
+  <title>レポートの進捗</title>
 </head>
 
-<body>
-    <p>あずきバーくんの現在の「期末レポート」進捗は<span id="progress" style="color: red;"></span>文字です</p>
-    <p>ちなみに1600字以上を要求されています。期限は5日23時59分です。ヤバいわよ！</p>
+<body class="wf-notosansjapanese">
+  <p>あずきバーくんの現在の「期末レポート」進捗は<span id="progress" style="color: red;"></span>字です</p>
+  <p>ちなみに1600字以上を要求されていて、期限は5日23時59分です。ヤバいわよ！</p>
 
+  <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false"
+    id="tweet">Tweet</a>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
 
 </html>
 <script>
-    const area = document.getElementById("progress");
-    if (area !== null) {
-        fetch("/count")
-            .then(res => res.json())
-            .then(v => area.innerText = v["length"])
-    }
+  const area = document.getElementById("progress");
+  const tweet = document.getElementById("tweet")
+
+  if (area !== null) {
+    fetch("/count")
+      .then(res => res.json())
+      .then(v => {
+        const len = v["length"]
+        area.innerText = len;
+        tweet.setAttribute("data-text", `あずきバーくんの現在の進捗は${len}字です`)
+      })
+  }
 </script>

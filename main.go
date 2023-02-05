@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"regexp"
@@ -16,6 +17,7 @@ import (
 
 var (
 	file = flag.String("f", "file", "")
+	port = flag.String("p", "1323", "port")
 )
 
 var (
@@ -36,21 +38,21 @@ func main() {
 	e.File("/", "public/index.html")
 	e.GET("/count", r.Counter)
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(net.JoinHostPort("", *port)))
 }
 
 type Handler struct {
-	mu       *sync.Mutex
+	sync.Mutex
 	filePath string
 }
 
 func NewReader(filePath string) *Handler {
-	return &Handler{filePath: filePath, mu: &sync.Mutex{}}
+	return &Handler{filePath: filePath}
 }
 
 func (h *Handler) Counter(c echo.Context) error {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 	fp, err := os.Open(h.filePath)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
