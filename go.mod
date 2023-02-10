@@ -2,7 +2,10 @@ module github.com/azuki-bar/sharite
 
 go 1.20
 
-require github.com/labstack/echo/v4 v4.10.0
+require (
+	github.com/labstack/echo/v4 v4.10.0
+	github.com/samber/lo v1.37.0
+)
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
@@ -12,6 +15,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.2.0 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect

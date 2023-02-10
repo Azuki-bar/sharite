@@ -13,17 +13,22 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/samber/lo"
 )
 
 var (
 	file = flag.String("f", "file", "")
 	port = flag.String("p", "1323", "port")
+	goal = flag.Uint("g", 0, "specify goal length")
 )
 
 var (
-	startPattern   = regexp.MustCompile(`% <<<<<START`)
-	endPattern     = regexp.MustCompile(`% >>>>>END`)
-	excludePattern = regexp.MustCompile(`\\[A-Za-z]({.+})+`)
+	startPattern    = regexp.MustCompile(`<<<<<.?START`)
+	endPattern      = regexp.MustCompile(`>>>>>.?END`)
+	excludePatterns = []*regexp.Regexp{
+		regexp.MustCompile(`\\[A-Za-z]({.+})+`),
+		regexp.MustCompile(`%.+`),
+	}
 )
 
 func main() {
@@ -50,6 +55,11 @@ func NewReader(filePath string) *Handler {
 	return &Handler{filePath: filePath}
 }
 
+type CounterResult struct {
+	Length int  `json:"length"`
+	Goal   uint `json:"goal"`
+}
+
 func (h *Handler) Counter(c echo.Context) error {
 	h.Lock()
 	defer h.Unlock()
@@ -62,10 +72,9 @@ func (h *Handler) Counter(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	val := struct {
-		Length int `json:"length"`
-	}{
+	val := CounterResult{
 		Length: count,
+		Goal:   *goal,
 	}
 	return c.JSON(http.StatusOK, val)
 }
@@ -91,8 +100,20 @@ func CountFromReader(r io.Reader) (int, error) {
 			break
 		}
 		if inArea {
-			length += len([]rune(string(excludePattern.ReplaceAll(line, nil))))
+			replaced := applyReplaceRules(excludePatterns, line)
+			length += len([]rune(string(replaced)))
 		}
 	}
 	return length, nil
+}
+
+func applyReplaceRules(rules []*regexp.Regexp, target []byte) []byte {
+	return lo.Reduce(
+		rules,
+		func(agg []byte, item *regexp.Regexp, _ int) []byte {
+			return item.ReplaceAll(agg, nil)
+		},
+		target,
+	)
+
 }
